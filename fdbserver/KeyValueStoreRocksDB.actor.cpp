@@ -72,9 +72,7 @@
 #ifdef WITH_ROCKSDB
 
 // Enforcing rocksdb version.
-static_assert((ROCKSDB_MAJOR == FDB_ROCKSDB_MAJOR && ROCKSDB_MINOR == FDB_ROCKSDB_MINOR &&
-               ROCKSDB_PATCH == FDB_ROCKSDB_PATCH),
-              "Unsupported rocksdb version.");
+static_assert(ROCKSDB_MAJOR == FDB_ROCKSDB_MAJOR, "Unsupported rocksdb version.");
 
 namespace {
 using rocksdb::BackgroundErrorReason;
