@@ -1,7 +1,5 @@
 # FindRocksDB
 
-find_package(RocksDB 8.1.1)
-
 include(ExternalProject)
 
 set(RocksDB_CMAKE_ARGS
@@ -38,6 +36,11 @@ set(RocksDB_CMAKE_ARGS
   -DCMAKE_POSITION_INDEPENDENT_CODE=True
 )
 
+# CompileRocksDB sets `lz4_LIBRARIES` to be the shared lib, we want to link
+# statically, so find the static library here.
+find_library(lz4_STATIC_LIBRARIES
+  NAMES liblz4.a REQUIRED)
+
 if(ROCKSDB_FOUND)
   ExternalProject_Add(rocksdb
     SOURCE_DIR "${RocksDB_ROOT}"
@@ -49,7 +52,7 @@ if(ROCKSDB_FOUND)
 
   ExternalProject_Get_Property(rocksdb BINARY_DIR)
   set(ROCKSDB_LIBRARIES
-      ${BINARY_DIR}/librocksdb.a)
+      ${BINARY_DIR}/librocksdb.a ${lz4_STATIC_LIBRARIES})
 else()
   ExternalProject_Add(rocksdb
     URL https://github.com/facebook/rocksdb/archive/refs/tags/v8.1.1.tar.gz
@@ -61,7 +64,7 @@ else()
 
   ExternalProject_Get_Property(rocksdb BINARY_DIR)
   set(ROCKSDB_LIBRARIES
-      ${BINARY_DIR}/librocksdb.a)
+      ${BINARY_DIR}/librocksdb.a ${lz4_STATIC_LIBRARIES})
 
   ExternalProject_Get_Property(rocksdb SOURCE_DIR)
   set(ROCKSDB_INCLUDE_DIR "${SOURCE_DIR}/include")

@@ -8,13 +8,12 @@ endif()
 
 
 if(WITH_ROCKSDB)
-  include(CompileRocksDB)
-  # CompileRocksDB sets `lz4_LIBRARIES` to be the shared lib, we want to link
-  # statically, so find the static library here.
-  find_library(lz4_STATIC_LIBRARIES
-    NAMES liblz4.a REQUIRED)
-  if(WITH_LIBURING)
-    find_package(uring)
+  find_package(RocksDB 8.1.1)
+  if(NOT TARGET rocksdb)
+    include(CompileRocksDB)
+    if(WITH_LIBURING)
+      find_package(uring)
+    endif()
   endif()
 endif()
 
@@ -143,11 +142,11 @@ if (WITH_ROCKSDB)
   add_dependencies(fdbserver rocksdb)
   if(WITH_LIBURING)
     target_include_directories(fdbserver PRIVATE ${ROCKSDB_INCLUDE_DIR} ${uring_INCLUDE_DIR})
-    target_link_libraries(fdbserver PRIVATE fdbclient metacluster sqlite ${ROCKSDB_LIBRARIES} ${uring_LIBRARIES} ${lz4_STATIC_LIBRARIES})
+    target_link_libraries(fdbserver PRIVATE fdbclient metacluster sqlite ${ROCKSDB_LIBRARIES} ${uring_LIBRARIES})
     target_compile_definitions(fdbserver PRIVATE BOOST_ASIO_HAS_IO_URING=1 BOOST_ASIO_DISABLE_EPOLL=1)
   else()
     target_include_directories(fdbserver PRIVATE ${ROCKSDB_INCLUDE_DIR})
-    target_link_libraries(fdbserver PRIVATE fdbclient metacluster sqlite ${ROCKSDB_LIBRARIES} ${lz4_STATIC_LIBRARIES})
+    target_link_libraries(fdbserver PRIVATE fdbclient metacluster sqlite ${ROCKSDB_LIBRARIES})
   endif()
 else()
   target_link_libraries(fdbserver PRIVATE fdbclient metacluster sqlite)
